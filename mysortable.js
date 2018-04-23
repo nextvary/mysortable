@@ -25,13 +25,13 @@
             }else{
                 return '请传递参数';
             }
-            this.obj.append('<input type="text" class="option" name="options" width="100%">');
-            this.obj.append('<input type="text" class="answer" name="answers">');
+            this.obj.append('<input type="text" class="option" name="options" style="display:none;">');
+            this.obj.append('<input type="text" class="answer form-control"   readonly="readonly" name="answers" style="position: absolute;z-index: 99;">');
             this.obj.css({"position":"relative"});
 
 
 
-            this.obj.append('<button class="add" style="position: absolute;bottom: 0;"> 新增</button>');
+            this.obj.append('<input type="button" class="add btn btn-primary" style="position: absolute;" value="新增选项">');
             this.addOptions();
 
             this.obj.find('.add').bind('click',{sortable:this},function (e) {
@@ -42,12 +42,12 @@
 
         },
         addOptions:function (num,id,desc) {
-            num=num||4;
+            num=num||0;
             id=id||0;
-            desc=desc||'新增选项';
+            desc=desc||'选项';
             var html='';
             for (var i=0;i<num;i++){
-                html+='<li data-id="'+id+'"><span class="sort"></span><span class="desc">'+desc+'</span>' +
+                html+='<li data-id="'+id+'" class="list-group-item"><span class="sort"></span><span class="desc">'+desc+(i+1)+'</span>' +
                     '<span  class="edit">' +
                     '<i class="choose" title="选为答案">√</i> ' +
                     '<i class="remove" title="取消选中" >x</i>' +
@@ -67,9 +67,8 @@
             this.obj.find('li').each(function (index,el) {
                 var desc=$(el).find('.desc').text();
                 var sort=String.fromCharCode((65+index));
-//                    $(el).find('.desc').html(desc);
                 $(el).find('.sort').html(sort);
-                need.push({"sort":sort,'desc':desc});
+                need.push({"option_id":$(el).attr('data-id'),"sort":sort,'desc':desc});
                 if($(el).hasClass('active')){
                     answers.push(sort);
                 }
@@ -81,6 +80,7 @@
                 this.obj.find('.option').val('');
 
             }
+            console.log(this.obj.find('.option').val());
             if(answers.length!=0){
                 this.obj.find('.answer').val(JSON.stringify(answers));
             }else{
@@ -102,6 +102,10 @@
                             $(evt.item).siblings('li').removeClass('active');
                         }
                         $(evt.item).addClass('active');
+
+                        var answer=$(evt.item).parent('ul').find('.answer');
+                        answer.removeClass('error');
+                        $('.answer_error').hide();
                     }else if(classname=='remove'){
                         $(evt.item).removeClass('active');
                     }else if(classname=='del'){
@@ -121,7 +125,7 @@
                     desc.hide();
                     desc.after("<input type='text' value=''  >");
                     $(this).find('input').bind('blur',{"input":$(this).find('input'),'this':ev.data.sortable},ev.data.sortable.editblur);
-                    $(this).find('input').focus().val(desc.text());
+                    $(this).find('input').focus().val(desc.text()).select();
                     ev.data.sortable.store();
                 }
             });
